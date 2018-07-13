@@ -4,7 +4,7 @@
 DIR="Archive"
 
 ar_usage () {
-  printf '%s\n' "Usage: $(basename $0): [-r] [-s PATH] [-d PATH]"
+  printf '%s\n' "Usage: $(basename "$0"): [-r] [-s PATH] [-d PATH]"
   printf '%s\n' "Options:"
   printf '%10s  %s\n' "-r" "reverse default source and destination"
   printf '%10s  %s\n' "-s PATH" "change source to PATH"
