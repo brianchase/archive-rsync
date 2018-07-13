@@ -29,8 +29,8 @@ done
 shift $((OPTIND -1))
 
 ar_sync () {
-  FREE="$(df -h "$TOdname" | awk '!/Filesystem/ {print $4}')"
-  USED="$(df -h "$TOdname" | awk '!/Filesystem/ {print $3}')"
+  FREE="$(df -h "$TOdir" | awk '!/Filesystem/ {print $4}')"
+  USED="$(df -h "$TOdir" | awk '!/Filesystem/ {print $3}')"
   printf '%s\n\n' "[Free space: $FREE] [Used space: $USED]"
   read -r -p "Sync $FROM to $TO? [y/n] " SYNC
   if [ "$SYNC" = y ]; then
@@ -44,7 +44,7 @@ ar_sync () {
 
 chk_space () {
   DIRTotal="$(du -ms "$FROM" | awk '{print $1}')"
-  FSTotal="$(df -m "$TOdname" | awk '!/Filesystem/ {print $2}')"
+  FSTotal="$(df -m "$TOdir" | awk '!/Filesystem/ {print $2}')"
   if [ "$FSTotal" -lt "$DIRTotal" ]; then
     printf '%s\n' "Insufficient space on $TO for $FROM!"
     if [ "${B2[0]}" ]; then
@@ -84,28 +84,34 @@ chk_to () {
 # path, you need to check more than just whether $TO is a directory.
 
   if [ ! -d "$TO" ]; then
-    if TOdname="$(dirname "$TO" 2>/dev/null)"; then
+    if TOdir="$(dirname "$TO" 2>/dev/null)"; then
       if [ -x "$(command -v get-mnt.sh)" ]; then
         read -r -p "Mount a connected device for '$TO'? [y/n] " CD
         if [ "$CD" = y ]; then
           source get-mnt.sh
-          if [ ! -d "$TOdname" ]; then
-            printf '%s\n' "Base destination '$TOdname' not found!"
-            unmount_a2
-            exit 1
-          elif [ ! -d "$TO" ] && [ ! -w "$TOdname" ]; then
-            printf '%s\n' "Base destination '$TOdname' not writable!"
-            unmount_a2
-            exit 1
+          if [ -d "$TO" ] && [ ! -w "$TO" ]; then
+            printf '%s\n' "Destination '$TO' not writable!"
+          elif [ ! -d "$TO" ] && [ ! -d "$TOdir" ]; then
+            printf '%s\n' "Base destination '$TOdir' not found!"
+          elif [ ! -d "$TO" ] && [ ! -w "$TOdir" ]; then
+            printf '%s\n' "Base destination '$TOdir' not writable!"
+          else
+            return
           fi
+          unmount_a2
+          exit 1
+        elif [ -d "$TOdir" ] && [ -w "$TOdir" ]; then
           return
         fi
       fi
     fi
     printf '%s\n' "Destination '$TO' not found!"
     exit 1
+  elif [ ! -w "$TO" ]; then
+    printf '%s\n' "Destination '$TO' not writable!"
+    exit 1
   else
-    TOdname="$TO"
+    TOdir="$TO"
   fi
 }
 
