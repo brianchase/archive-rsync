@@ -54,7 +54,7 @@ chk_space () {
   fi
 }
 
-chk_from_dir () {
+chk_from () {
   case $FROM in
     */) read -r -p "Drop trailing slash from '$FROM'? [y/n] " TS
         if [ "$TS" = y ]; then
@@ -86,7 +86,7 @@ chk_get_mnt () {
   fi
 }
 
-chk_to_dir () {
+chk_to () {
 
 # Since rsync can create the directory at the end of the destination
 # path, you need to check more than just whether $TO is a directory.
@@ -120,24 +120,24 @@ chk_to_dir () {
 get_defaults () {
   if [ "$RVS" ]; then
     TO="$HOME"
-    chk_to_dir
+    chk_to
     if chk_get_mnt; then
       source get-mnt.sh
       FROM="${B2[0]}/$DIR"
-      chk_from_dir
+      chk_from
     fi
   else
     if [ -z "$FROM" ]; then
       FROM="$HOME/$DIR"
     fi
-    chk_from_dir
+    chk_from
     if [ -z "$TO" ]; then
       if chk_get_mnt; then
         source get-mnt.sh
         TO="${B2[0]}"
       fi
     fi
-    chk_to_dir
+    chk_to
   fi
 }
 
