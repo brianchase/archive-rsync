@@ -103,6 +103,8 @@ chk_to () {
         elif [ -d "$TOdir" ] && [ -w "$TOdir" ]; then
           return
         fi
+      elif [ -d "$TOdir" ] && [ -w "$TOdir" ]; then
+        return
       fi
     fi
     printf '%s\n' "Destination '$TO' not found!"
