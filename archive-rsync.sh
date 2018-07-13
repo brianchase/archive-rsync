@@ -62,7 +62,7 @@ chk_from () {
         fi ;;
   esac
   if [ ! -d "$FROM" ]; then
-    if chk_get_mnt; then
+    if [ -x "$(command -v get-mnt.sh)" ]; then
       read -r -p "Mount a connected device for '$FROM'? [y/n] " CD
       if [ "$CD" = y ]; then
         source get-mnt.sh
@@ -78,14 +78,6 @@ chk_from () {
   fi
 }
 
-chk_get_mnt () {
-  if [ ! -x "$(command -v get-mnt.sh)" ]; then
-    printf '%s\n' "get-mnt.sh not found!"
-    printf '%s\n' "Please visit https://github.com/brianchase/get-mnt"
-    exit 1
-  fi
-}
-
 chk_to () {
 
 # Since rsync can create the directory at the end of the destination
@@ -93,7 +85,7 @@ chk_to () {
 
   if [ ! -d "$TO" ]; then
     if TOdname="$(dirname "$TO" 2>/dev/null)"; then
-      if chk_get_mnt; then
+      if [ -x "$(command -v get-mnt.sh)" ]; then
         read -r -p "Mount a connected device for '$TO'? [y/n] " CD
         if [ "$CD" = y ]; then
           source get-mnt.sh
@@ -117,12 +109,21 @@ chk_to () {
   fi
 }
 
-get_defaults () {
+chk_get_mnt () {
+  if [ -x "$(command -v get-mnt.sh)" ]; then
+    source get-mnt.sh
+  else
+    printf '%s\n' "Setting default $1 requires get-mnt.sh!"
+    printf '%s\n' "Please visit https://github.com/brianchase/get-mnt"
+    exit 1
+  fi
+}
+
+set_defaults () {
   if [ "$RVS" ]; then
     TO="$HOME"
     chk_to
-    if chk_get_mnt; then
-      source get-mnt.sh
+    if chk_get_mnt source; then
       FROM="${B2[0]}/$DIR"
       chk_from
     fi
@@ -131,11 +132,8 @@ get_defaults () {
       FROM="$HOME/$DIR"
     fi
     chk_from
-    if [ -z "$TO" ]; then
-      if chk_get_mnt; then
-        source get-mnt.sh
-        TO="${B2[0]}"
-      fi
+    if [ -z "$TO" ] && chk_get_mnt destination; then
+      TO="${B2[0]}"
     fi
     chk_to
   fi
@@ -158,7 +156,7 @@ ar_opts () {
 
 ar_main () {
   ar_opts
-  get_defaults
+  set_defaults
   chk_space
   ar_sync
 }
