@@ -29,12 +29,12 @@ done
 shift $((OPTIND -1))
 
 br_sync () {
-  FREE="$(df -m "$TOdname" | awk '!/Filesystem/ {print $4}')"
-  USED="$(df -m "$TOdname" | awk '!/Filesystem/ {print $3}')"
-  printf '%s\n\n' "[Free space: $FREE MB] [Used space: $USED MB]"
+  FREE="$(df -h "$TOdname" | awk '!/Filesystem/ {print $4}')"
+  USED="$(df -h "$TOdname" | awk '!/Filesystem/ {print $3}')"
+  printf '%s\n\n' "[Free space: $FREE] [Used space: $USED]"
   read -r -p "Sync $FROM to $TO? [y/n] " SYNC
   if [ "$SYNC" = y ]; then
-    rsync -amnu --delete --progress "$FROM" "$TO"
+    rsync -amu --delete --progress "$FROM" "$TO"
   fi
   if [ "${B2[0]}" ]; then
     printf '\n'
