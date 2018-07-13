@@ -3,7 +3,7 @@
 # Default source directory in $HOME (change as necessary):
 DIR="Archive"
 
-br_usage () {
+ar_usage () {
   printf '%s\n' "Usage: $(basename $0): [-r] [-s PATH] [-d PATH]"
   printf '%s\n' "Options:"
   printf '%10s  %s\n' "-r" "reverse default source and destination"
@@ -23,12 +23,12 @@ while getopts :rs:d: FLAG; do
     d) TO="$OPTARG" ;;
     :) printf '%s\n' "Invalid flag: -$OPTARG requires an argument"
        exit 1 ;;
-    \?) br_usage ;;
+    \?) ar_usage ;;
   esac
 done
 shift $((OPTIND -1))
 
-br_sync () {
+ar_sync () {
   FREE="$(df -h "$TOdname" | awk '!/Filesystem/ {print $4}')"
   USED="$(df -h "$TOdname" | awk '!/Filesystem/ {print $3}')"
   printf '%s\n\n' "[Free space: $FREE] [Used space: $USED]"
@@ -141,7 +141,7 @@ get_defaults () {
   fi
 }
 
-br_opts () {
+ar_opts () {
   if [ "$RVS" ] && [ "$FROM" ]; then
     printf '%s\n' "Invalid flags: -r and -s conflict!"
     exit 1
@@ -156,14 +156,14 @@ br_opts () {
   fi
 }
 
-br_main () {
-  br_opts
+ar_main () {
+  ar_opts
   get_defaults
   chk_space
-  br_sync
+  ar_sync
 }
 
 case $1 in
-  ''|-r|-s|-d) br_main ;;
-  *) br_usage ;;
+  ''|-r|-s|-d) ar_main ;;
+  *) ar_usage ;;
 esac
