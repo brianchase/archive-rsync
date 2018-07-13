@@ -6,11 +6,11 @@ DIR="Archive"
 ar_usage () {
   printf '%s\n' "Usage: $(basename "$0"): [-r] [-s PATH] [-d PATH]"
   printf '%s\n' "Options:"
-  printf '%10s  %s\n' "-r" "reverse default source and destination"
-  printf '%10s  %s\n' "-s PATH" "change source to PATH"
-  printf '%10s  %s\n' "" "default: $HOME/$DIR"
-  printf '%10s  %s\n' "-d PATH" "change destination to PATH"
-  printf '%10s  %s\n' "" "default: user selected mounted device"
+  printf '%10s  %s\n' "-r" "Reverse default source and destination"
+  printf '%10s  %s\n' "-s PATH" "Set source to PATH"
+  printf '%10s  %s\n' "" "Default: $HOME/$DIR"
+  printf '%10s  %s\n' "-d PATH" "Set destination to PATH"
+  printf '%10s  %s\n' "" "Default: user selected mounted device"
   exit 1
 }
 
@@ -18,10 +18,10 @@ while getopts :rs:d: FLAG; do
   case $FLAG in
     r) RVS="true" ;;
     s) FROM="$OPTARG" ;;
-    :) printf '%s\n' "Invalid flag: -$OPTARG requires an argument"
+    :) printf '%s\n' "Invalid flag: -$OPTARG requires an argument!"
        exit 1 ;;
     d) TO="$OPTARG" ;;
-    :) printf '%s\n' "Invalid flag: -$OPTARG requires an argument"
+    :) printf '%s\n' "Invalid flag: -$OPTARG requires an argument!"
        exit 1 ;;
     \?) ar_usage ;;
   esac
