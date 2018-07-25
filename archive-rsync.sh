@@ -14,13 +14,13 @@ ar_usage () {
   exit 1
 }
 
-while getopts :rs:d: FLAG; do
-  case $FLAG in
-    r) RVS="true" ;;
-    s) FROM="$OPTARG" ;;
+while getopts :rs:d: Flag; do
+  case $Flag in
+    r) Reverse="true" ;;
+    s) From="$OPTARG" ;;
     :) printf '%s\n' "Invalid flag: -$OPTARG requires an argument!"
        exit 1 ;;
-    d) TO="$OPTARG" ;;
+    d) To="$OPTARG" ;;
     :) printf '%s\n' "Invalid flag: -$OPTARG requires an argument!"
        exit 1 ;;
     \?) ar_usage ;;
@@ -29,51 +29,55 @@ done
 shift $((OPTIND -1))
 
 ar_sync () {
-  FREE="$(df -h "$TOdir" | awk '!/Filesystem/ {print $4}')"
-  USED="$(df -h "$TOdir" | awk '!/Filesystem/ {print $3}')"
-  printf '%s\n\n' "[Free space: $FREE] [Used space: $USED]"
-  read -r -p "Sync $FROM to $TO? [y/n] " SYNC
-  if [ "$SYNC" = y ]; then
-    rsync -amu --delete --progress "$FROM" "$TO"
+  local Free Used Sync
+  Free="$(df -h "$ToDir" | awk '!/Filesystem/ {print $4}')"
+  Used="$(df -h "$ToDir" | awk '!/Filesystem/ {print $3}')"
+  printf '%s\n\n' "[Free space: $Free] [Used space: $Used]"
+  read -r -p "Sync $From to $To? [y/n] " Sync
+  if [ "$Sync" = y ]; then
+    rsync -amu --delete --progress "$From" "$To"
   fi
-  if [ "${B2[0]}" ]; then
+  if [ "${MntArr2[0]}" ]; then
     printf '\n'
-    unmount_a2
+    umount_dev
   fi
 }
 
 chk_space () {
-  DIRTotal="$(du -ms "$FROM" | awk '{print $1}')"
-  FSTotal="$(df -m "$TOdir" | awk '!/Filesystem/ {print $2}')"
+  local DIRTotal FSTotal
+  DIRTotal="$(du -ms "$From" | awk '{print $1}')"
+  FSTotal="$(df -m "$ToDir" | awk '!/Filesystem/ {print $2}')"
   if [ "$FSTotal" -lt "$DIRTotal" ]; then
-    printf '%s\n' "Insufficient space on $TO for $FROM!"
-    if [ "${B2[0]}" ]; then
-      unmount_a2
+    printf '%s\n' "Insufficient space on $To for $From!"
+    if [ "${MntArr2[0]}" ]; then
+      umount_dev
     fi
     exit 1
   fi
 }
 
 chk_from () {
-  case $FROM in
-    */) read -r -p "Drop trailing slash from '$FROM'? [y/n] " TS
-        if [ "$TS" = y ]; then
-          FROM="${FROM%/}"
+  case $From in
+    */) local TSlash
+        read -r -p "Drop trailing slash from '$From'? [y/n] " TSlash
+        if [ "$TSlash" = y ]; then
+          From="${From%/}"
         fi ;;
   esac
-  if [ ! -d "$FROM" ]; then
+  if [ ! -d "$From" ]; then
     if [ -x "$(command -v get-mnt.sh)" ]; then
-      read -r -p "Mount a connected device for '$FROM'? [y/n] " CD
-      if [ "$CD" = y ]; then
+      local MntCD
+      read -r -p "Mount a connected device for '$From'? [y/n] " MntCD
+      if [ "$MntCD" = y ]; then
         source get-mnt.sh
-        if [ ! -d "$FROM" ]; then
-          printf '%s\n' "Source '$FROM' not found!"
-          unmount_a2
+        if [ ! -d "$From" ]; then
+          printf '%s\n' "Source '$From' not found!"
+          umount_dev
           exit 1
         fi
       fi
     fi
-    printf '%s\n' "Source '$FROM' not found!"
+    printf '%s\n' "Source '$From' not found!"
     exit 1
   fi
 }
@@ -81,39 +85,40 @@ chk_from () {
 chk_to () {
 
 # Since rsync can create the directory at the end of the destination
-# path, you need to check more than just whether $TO is a directory.
+# path, you need to check more than just whether $To is a directory.
 
-  if [ ! -d "$TO" ]; then
-    if TOdir="$(dirname "$TO" 2>/dev/null)"; then
+  if [ ! -d "$To" ]; then
+    if ToDir="$(dirname "$To" 2>/dev/null)"; then
       if [ -x "$(command -v get-mnt.sh)" ]; then
-        read -r -p "Mount a connected device for '$TO'? [y/n] " CD
-        if [ "$CD" = y ]; then
+        local MntCD
+        read -r -p "Mount a connected device for '$To'? [y/n] " MntCD
+        if [ "$MntCD" = y ]; then
           source get-mnt.sh
-          if [ -d "$TO" ] && [ ! -w "$TO" ]; then
-            printf '%s\n' "Destination '$TO' not writable!"
-          elif [ ! -d "$TO" ] && [ ! -d "$TOdir" ]; then
-            printf '%s\n' "Base destination '$TOdir' not found!"
-          elif [ ! -d "$TO" ] && [ ! -w "$TOdir" ]; then
-            printf '%s\n' "Base destination '$TOdir' not writable!"
+          if [ -d "$To" ] && [ ! -w "$To" ]; then
+            printf '%s\n' "Destination '$To' not writable!"
+          elif [ ! -d "$To" ] && [ ! -d "$ToDir" ]; then
+            printf '%s\n' "Base destination '$ToDir' not found!"
+          elif [ ! -d "$To" ] && [ ! -w "$ToDir" ]; then
+            printf '%s\n' "Base destination '$ToDir' not writable!"
           else
             return
           fi
-          unmount_a2
+          umount_dev
           exit 1
-        elif [ -d "$TOdir" ] && [ -w "$TOdir" ]; then
+        elif [ -d "$ToDir" ] && [ -w "$ToDir" ]; then
           return
         fi
-      elif [ -d "$TOdir" ] && [ -w "$TOdir" ]; then
+      elif [ -d "$ToDir" ] && [ -w "$ToDir" ]; then
         return
       fi
     fi
-    printf '%s\n' "Destination '$TO' not found!"
+    printf '%s\n' "Destination '$To' not found!"
     exit 1
-  elif [ ! -w "$TO" ]; then
-    printf '%s\n' "Destination '$TO' not writable!"
+  elif [ ! -w "$To" ]; then
+    printf '%s\n' "Destination '$To' not writable!"
     exit 1
   else
-    TOdir="$TO"
+    ToDir="$To"
   fi
 }
 
@@ -128,34 +133,34 @@ chk_get_mnt () {
 }
 
 set_defaults () {
-  if [ "$RVS" ]; then
-    TO="$HOME"
+  if [ "$Reverse" ]; then
+    To="$HOME"
     chk_to
     if chk_get_mnt source; then
-      FROM="${B2[0]}/$DIR"
+      From="${MntArr2[0]}/$DIR"
       chk_from
     fi
   else
-    if [ -z "$FROM" ]; then
-      FROM="$HOME/$DIR"
+    if [ -z "$From" ]; then
+      From="$HOME/$DIR"
     fi
     chk_from
-    if [ -z "$TO" ] && chk_get_mnt destination; then
-      TO="${B2[0]}"
+    if [ -z "$To" ] && chk_get_mnt destination; then
+      To="${MntArr2[0]}"
     fi
     chk_to
   fi
 }
 
 ar_opts () {
-  if [ "$RVS" ] && [ "$FROM" ]; then
+  if [ "$Reverse" ] && [ "$From" ]; then
     printf '%s\n' "Invalid flags: -r and -s conflict!"
     exit 1
-  elif [ "$RVS" ] && [ "$TO" ]; then
+  elif [ "$Reverse" ] && [ "$To" ]; then
     printf '%s\n' "Invalid flags: -r and -d conflict!"
     exit 1
-  elif [ "$FROM" ] && [ "$TO" ]; then
-    if [ "$FROM" = "$TO" ]; then
+  elif [ "$From" ] && [ "$To" ]; then
+    if [ "$From" = "$To" ]; then
       printf '%s\n' "Source and destination paths are the same!"
       exit 1
     fi
