@@ -57,16 +57,15 @@ chk_space () {
 }
 
 chk_from () {
+  local TSlash MntCD
   case $From in
-    */) local TSlash
-        read -r -p "Drop trailing slash from '$From'? [y/n] " TSlash
+    */) read -r -p "Drop trailing slash from '$From'? [y/n] " TSlash
         if [ "$TSlash" = y ]; then
           From="${From%/}"
         fi ;;
   esac
   if [ ! -d "$From" ]; then
     if [ -x "$(command -v get-mnt.sh)" ]; then
-      local MntCD
       read -r -p "Mount a connected device for '$From'? [y/n] " MntCD
       if [ "$MntCD" = y ]; then
         source get-mnt.sh
