@@ -2,8 +2,9 @@
 
 ## ABOUT
 
-This Bash script uses [get-mnt](https://github.com/brianchase/get-mnt)
-for backing up files with [rsync](https://rsync.samba.org/).
+This Bash script uses my
+[get-mnt.sh](https://github.com/brianchase/get-mnt) to back up local
+files to a mounted device with [rsync](https://rsync.samba.org/).
 
 ## PORTABILITY
 
