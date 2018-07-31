@@ -4,13 +4,13 @@
 DIR="Archive"
 
 ar_usage () {
-  printf '%s\n%s\n' "Usage: $(basename "$0"): [-r] [-s PATH] [-d PATH]" \
-    "Options:" >&2
-  printf '%9s %s\n' "-r" "Reverse default source and destination" \
-    "-s PATH" "Set source to PATH" \
-    "" "Default: $HOME/$DIR" \
-    "-d PATH" "Set destination to PATH" \
-    "" "Default: user selected mounted device" >&2
+  printf '%s\n' "Usage: $(basename "$0"): [-r] [-s PATH] [-d PATH]" \
+    "Options:" \
+    "  -r Reverse default source and destination" \
+    "  -s PATH Set source to PATH" \
+    "     Default: $HOME/$DIR" \
+    "  -d PATH Set destination to PATH" \
+    "     Default: user selected mounted device" >&2
   exit 1
 }
 
