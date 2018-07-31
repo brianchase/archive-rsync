@@ -4,13 +4,13 @@
 DIR="Archive"
 
 ar_usage () {
-  printf '%s\n' "Usage: $(basename "$0"): [-r] [-s PATH] [-d PATH]"
-  printf '%s\n' "Options:"
-  printf '%10s  %s\n' "-r" "Reverse default source and destination"
-  printf '%10s  %s\n' "-s PATH" "Set source to PATH"
-  printf '%10s  %s\n' "" "Default: $HOME/$DIR"
-  printf '%10s  %s\n' "-d PATH" "Set destination to PATH"
-  printf '%10s  %s\n' "" "Default: user selected mounted device"
+  printf '%s\n' "Usage: $(basename "$0"): [-r] [-s PATH] [-d PATH]" \
+         "Options:" >&2
+  printf '%9s %s\n' "-r" "Reverse default source and destination" \
+         "-s PATH" "Set source to PATH" \
+         "" "Default: $HOME/$DIR" "-d PATH" \
+         "Set destination to PATH" \
+         "" "Default: user selected mounted device" >&2
   exit 1
 }
 
@@ -18,10 +18,10 @@ while getopts :rs:d: Flag; do
   case $Flag in
     r) Reverse="true" ;;
     s) From="$OPTARG" ;;
-    :) printf '%s\n' "Invalid flag: -$OPTARG requires an argument!"
+    :) printf '%s\n' "Invalid flag: -$OPTARG requires an argument!" >&2
        exit 1 ;;
     d) To="$OPTARG" ;;
-    :) printf '%s\n' "Invalid flag: -$OPTARG requires an argument!"
+    :) printf '%s\n' "Invalid flag: -$OPTARG requires an argument!" >&2
        exit 1 ;;
     \?) ar_usage ;;
   esac
@@ -70,13 +70,13 @@ chk_from () {
       if [ "$MntCD" = y ]; then
         source get-mnt.sh
         if [ ! -d "$From" ]; then
-          printf '%s\n' "Source '$From' not found!"
+          printf '%s\n' "Source '$From' not found!" >&2
           umount_dev
           exit 1
         fi
       fi
     fi
-    printf '%s\n' "Source '$From' not found!"
+    printf '%s\n' "Source '$From' not found!" >&2
     exit 1
   fi
 }
@@ -111,10 +111,10 @@ chk_to () {
         return
       fi
     fi
-    printf '%s\n' "Destination '$To' not found!"
+    printf '%s\n' "Destination '$To' not found!" >&2
     exit 1
   elif [ ! -w "$To" ]; then
-    printf '%s\n' "Destination '$To' not writable!"
+    printf '%s\n' "Destination '$To' not writable!" >&2
     exit 1
   else
     ToDir="$To"
@@ -125,8 +125,8 @@ chk_get_mnt () {
   if [ -x "$(command -v get-mnt.sh)" ]; then
     source get-mnt.sh
   else
-    printf '%s\n' "Setting default $1 requires get-mnt.sh!"
-    printf '%s\n' "Please visit https://github.com/brianchase/get-mnt"
+    printf '%s\n' "Setting default $1 requires get-mnt.sh!" \
+      "Please visit https://github.com/brianchase/get-mnt" >&2
     exit 1
   fi
 }
@@ -153,14 +153,14 @@ set_defaults () {
 
 ar_opts () {
   if [ "$Reverse" ] && [ "$From" ]; then
-    printf '%s\n' "Invalid flags: -r and -s conflict!"
+    printf '%s\n' "Invalid flags: -r and -s conflict!" >&2
     exit 1
   elif [ "$Reverse" ] && [ "$To" ]; then
-    printf '%s\n' "Invalid flags: -r and -d conflict!"
+    printf '%s\n' "Invalid flags: -r and -d conflict!" >&2
     exit 1
   elif [ "$From" ] && [ "$To" ]; then
     if [ "$From" = "$To" ]; then
-      printf '%s\n' "Source and destination paths are the same!"
+      printf '%s\n' "Source and destination paths are the same!" >&2
       exit 1
     fi
   fi
