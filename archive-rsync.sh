@@ -5,12 +5,12 @@ DIR="Archive"
 
 ar_usage () {
   printf '%s\n' "Usage: $(basename "$0"): [-r] [-s PATH] [-d PATH]" \
-         "Options:" >&2
+    "Options:" >&2
   printf '%9s %s\n' "-r" "Reverse default source and destination" \
-         "-s PATH" "Set source to PATH" \
-         "" "Default: $HOME/$DIR" "-d PATH" \
-         "Set destination to PATH" \
-         "" "Default: user selected mounted device" >&2
+    "-s PATH" "Set source to PATH" \
+    "" "Default: $HOME/$DIR" "-d PATH" \
+    "Set destination to PATH" \
+    "" "Default: user selected mounted device" >&2
   exit 1
 }
 
@@ -94,11 +94,11 @@ chk_to () {
         if [ "$MntCD" = y ]; then
           source get-mnt.sh
           if [ -d "$To" ] && [ ! -w "$To" ]; then
-            printf '%s\n' "Destination '$To' not writable!"
+            printf '%s\n' "Destination '$To' not writable!" >&2
           elif [ ! -d "$To" ] && [ ! -d "$ToDir" ]; then
-            printf '%s\n' "Base destination '$ToDir' not found!"
+            printf '%s\n' "Base destination '$ToDir' not found!" >&2
           elif [ ! -d "$To" ] && [ ! -w "$ToDir" ]; then
-            printf '%s\n' "Base destination '$ToDir' not writable!"
+            printf '%s\n' "Base destination '$ToDir' not writable!" >&2
           else
             return
           fi
