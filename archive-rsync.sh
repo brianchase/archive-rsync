@@ -39,7 +39,7 @@ ar_sync () {
   fi
   if [ "${MntArr2[0]}" ]; then
     printf '\n'
-    umount_dev
+    chk_umount_args "${DevArr2[0]}"
   fi
 }
 
@@ -50,7 +50,7 @@ chk_space () {
   if [ "$FSTotal" -lt "$DIRTotal" ]; then
     printf '%s\n' "Insufficient space on $To for $From!"
     if [ "${MntArr2[0]}" ]; then
-      umount_dev
+      chk_umount_args "${DevArr2[0]}"
     fi
     exit 1
   fi
@@ -71,7 +71,7 @@ chk_from () {
         source get-mnt.sh
         if [ ! -d "$From" ]; then
           printf '%s\n' "Source '$From' not found!" >&2
-          umount_dev
+          chk_umount_args "${DevArr2[0]}"
           exit 1
         fi
       fi
@@ -102,7 +102,7 @@ chk_to () {
           else
             return
           fi
-          umount_dev
+          chk_umount_args "${DevArr2[0]}"
           exit 1
         elif [ -d "$ToDir" ] && [ -w "$ToDir" ]; then
           return
