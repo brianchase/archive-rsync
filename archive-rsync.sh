@@ -49,9 +49,7 @@ chk_space () {
   FSTotal="$(df -m "$ToDir" | awk '!/Filesystem/ {print $2}')"
   if [ "$FSTotal" -lt "$DIRTotal" ]; then
     printf '%s\n' "Insufficient space on $To for $From!"
-    if [ "${MntArr2[0]}" ]; then
-      chk_umount_args "${DevArr2[0]}"
-    fi
+    [ "${MntArr2[0]}" ] && chk_umount_args "${DevArr2[0]}"
     exit 1
   fi
 }
@@ -60,9 +58,7 @@ chk_from () {
   local TSlash MntCD
   case $From in
     */) read -r -p "Drop trailing slash from '$From'? [y/n] " TSlash
-        if [ "$TSlash" = y ]; then
-          From="${From%/}"
-        fi ;;
+        [ "$TSlash" = y ] && From="${From%/}" ;;
   esac
   if [ ! -d "$From" ]; then
     if [ -x "$(command -v get-mnt.sh)" ]; then
@@ -140,9 +136,7 @@ set_defaults () {
       chk_from
     fi
   else
-    if [ -z "$From" ]; then
-      From="$HOME/$DIR"
-    fi
+    [ -z "$From" ] && From="$HOME/$DIR"
     chk_from
     if [ -z "$To" ] && chk_get_mnt destination; then
       To="${MntArr2[0]}"
