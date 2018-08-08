@@ -1,12 +1,12 @@
 # archive-rsync
 
-## ABOUT
+## About
 
 This Bash script uses my
 [get-mnt.sh](https://github.com/brianchase/get-mnt) to back up local
 files to a mounted device with [rsync](https://rsync.samba.org/).
 
-## HOW IT WORKS
+## How It Works
 
 You can run the script without options to use its default settings or
 run it with options to override them. The options are as follows:
@@ -86,15 +86,15 @@ This syncs from `Archive` on a mounted device to `$HOME`.
 
 Among other precautions, the script exits with an error if the
 destination has insufficient space for the source. Regardless, beware
-that the script can't save you from every foolish mistake. Please
-inspect and test it before using it. You could lose data otherwise!
+that the script can't save you from every foolish mistake. Please test
+it before using it. You could lose data otherwise!
 
 If all goes well, the script runs [rsync](https://rsync.samba.org/)
-with options `-amu --delete --progress`. Last, if the script used
+with options `-amu --delete --progress`. If the script used
 [get-mnt.sh](https://github.com/brianchase/get-mnt) to mount a device,
 the script asks to unmount it.
 
-## PORTABILITY
+## Portability
 
 Since the script uses arrays, it's not strictly
 [POSIX](https://en.wikipedia.org/wiki/POSIX)-compliant. As a result,
@@ -102,12 +102,12 @@ it isn't compatible with
 [Dash](http://gondor.apana.org.au/~herbert/dash/) and probably a good
 number of other shells.
 
-## LICENSE
+## License
 
 This project is in the public domain under [The
 Unlicense](https://choosealicense.com/licenses/unlicense/).
 
-## REQUIREMENTS
+## Requirements
 
 * [rsync](https://rsync.samba.org/)
 * [get-mnt](https://github.com/brianchase/get-mnt) (for default settings)
