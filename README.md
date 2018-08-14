@@ -19,9 +19,9 @@ By default, the script syncs files from `$HOME/Archive` to a mounted
 device, such as a USB thumb drive. To get the path of that
 destination, the script uses
 [get-mnt.sh](https://github.com/brianchase/get-mnt), which allows you
-to select a mounted device for the backup or to mount one and then
-select it. For more information on how this aspect of the script
-works, please see the documentation for
+to select a mounted device for the backup or to mount one (or more)
+and then select it. For more information on how this aspect of the
+script works, please see the documentation for
 [get-mnt.sh](https://github.com/brianchase/get-mnt) and its associated
 script – the crucial piece, really –
 [mnt-dev.sh](https://github.com/brianchase/mnt-dev).
