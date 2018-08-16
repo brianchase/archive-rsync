@@ -111,8 +111,7 @@ chk_get_mnt () {
   if [ -x "$(command -v get-mnt.sh)" ]; then
     source get-mnt.sh
   else
-    ar_error "Setting default $1 requires get-mnt.sh!" \
-      "Please visit https://github.com/brianchase/get-mnt"
+    ar_error "Setting default $1 requires get-mnt.sh!"
   fi
 }
 
@@ -135,7 +134,7 @@ ar_defaults () {
 }
 
 ar_error () {
-  printf '%s\n' "$1" "$2" >&2
+  printf '%s\n' "$1" >&2
   [ "${MntArr2[0]}" ] && chk_umount_args "${DevArr2[0]}"
   exit 1
 }
