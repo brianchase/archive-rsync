@@ -48,9 +48,7 @@ chk_space () {
   DIRTotal="$(du -ms "$From" | awk '{print $1}')"
   FSTotal="$(df -m "$ToDir" | awk '!/Filesystem/ {print $2}')"
   if [ "$FSTotal" -lt "$DIRTotal" ]; then
-    printf '%s\n' "Insufficient space on $To for $From!"
-    [ "${MntArr2[0]}" ] && chk_umount_args "${DevArr2[0]}"
-    exit 1
+    ar_error "Insufficient space on $To for $From!"
   fi
 }
 
@@ -66,14 +64,11 @@ chk_from () {
       if [ "$MntCD" = y ]; then
         source get-mnt.sh
         if [ ! -d "$From" ]; then
-          printf '%s\n' "Source '$From' not found!" >&2
-          chk_umount_args "${DevArr2[0]}"
-          exit 1
+          ar_error "Source '$From' not found!"
         fi
       fi
     fi
-    printf '%s\n' "Source '$From' not found!" >&2
-    exit 1
+    ar_error "Source '$From' not found!"
   fi
 }
 
@@ -90,16 +85,13 @@ chk_to () {
         if [ "$MntCD" = y ]; then
           source get-mnt.sh
           if [ -d "$To" ] && [ ! -w "$To" ]; then
-            printf '%s\n' "Destination '$To' not writable!" >&2
+            ar_error "Destination '$To' not writable!"
           elif [ ! -d "$To" ] && [ ! -d "$ToDir" ]; then
-            printf '%s\n' "Base destination '$ToDir' not found!" >&2
+            ar_error "Base destination '$ToDir' not found!"
           elif [ ! -d "$To" ] && [ ! -w "$ToDir" ]; then
-            printf '%s\n' "Base destination '$ToDir' not writable!" >&2
-          else
-            return
+            ar_error "Base destination '$ToDir' not writable!"
           fi
-          chk_umount_args "${DevArr2[0]}"
-          exit 1
+          return
         elif [ -d "$ToDir" ] && [ -w "$ToDir" ]; then
           return
         fi
@@ -107,11 +99,9 @@ chk_to () {
         return
       fi
     fi
-    printf '%s\n' "Destination '$To' not found!" >&2
-    exit 1
+    ar_error "'$To' not found!"
   elif [ ! -w "$To" ]; then
-    printf '%s\n' "Destination '$To' not writable!" >&2
-    exit 1
+    ar_error "Destination '$To' not writable!"
   else
     ToDir="$To"
   fi
@@ -121,48 +111,50 @@ chk_get_mnt () {
   if [ -x "$(command -v get-mnt.sh)" ]; then
     source get-mnt.sh
   else
-    printf '%s\n' "Setting default $1 requires get-mnt.sh!" \
-      "Please visit https://github.com/brianchase/get-mnt" >&2
-    exit 1
+    ar_error "Setting default $1 requires get-mnt.sh!" \
+      "Please visit https://github.com/brianchase/get-mnt"
   fi
 }
 
-set_defaults () {
+ar_defaults () {
   if [ "$Reverse" ]; then
     To="$HOME"
     chk_to
-    if chk_get_mnt source; then
+    if chk_get_mnt "source"; then
       From="${MntArr2[0]}/$DIR"
       chk_from
     fi
   else
     [ -z "$From" ] && From="$HOME/$DIR"
     chk_from
-    if [ -z "$To" ] && chk_get_mnt destination; then
+    if [ -z "$To" ] && chk_get_mnt "destination"; then
       To="${MntArr2[0]}"
     fi
     chk_to
   fi
 }
 
+ar_error () {
+  printf '%s\n' "$1" "$2" >&2
+  [ "${MntArr2[0]}" ] && chk_umount_args "${DevArr2[0]}"
+  exit 1
+}
+
 ar_opts () {
   if [ "$Reverse" ] && [ "$From" ]; then
-    printf '%s\n' "Invalid flags: -r and -s conflict!" >&2
-    exit 1
+    ar_error "Invalid flags: -r and -s conflict!"
   elif [ "$Reverse" ] && [ "$To" ]; then
-    printf '%s\n' "Invalid flags: -r and -d conflict!" >&2
-    exit 1
+    ar_error "Invalid flags: -r and -d conflict!"
   elif [ "$From" ] && [ "$To" ]; then
     if [ "$From" = "$To" ]; then
-      printf '%s\n' "Source and destination paths are the same!" >&2
-      exit 1
+      ar_error "Source and destination paths are the same!"
     fi
   fi
 }
 
 ar_main () {
   ar_opts
-  set_defaults
+  ar_defaults
   chk_space
   ar_sync
 }
