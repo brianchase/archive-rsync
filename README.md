@@ -97,10 +97,7 @@ the script asks to unmount it.
 ## Portability
 
 Since the script uses arrays, it's not strictly
-[POSIX](https://en.wikipedia.org/wiki/POSIX)-compliant. As a result,
-it isn't compatible with
-[Dash](http://gondor.apana.org.au/~herbert/dash/) and probably a good
-number of other shells.
+[POSIX](https://en.wikipedia.org/wiki/POSIX)-compliant.
 
 ## License
 
