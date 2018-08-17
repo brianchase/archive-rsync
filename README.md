@@ -27,7 +27,7 @@ script – the crucial piece, really –
 [mnt-dev.sh](https://github.com/brianchase/mnt-dev).
 
 To use a different default source directory in `$HOME` than `Archive`,
-change the value of the variable `DIR` on line four of the script:
+change the value of the variable `DIR` on line seven of the script:
 
 ```
 DIR="Archive"

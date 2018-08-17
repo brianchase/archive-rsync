@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# From: https://github.com/brianchase/archive-rsync
+# See also: https://github.com/brianchase/get-mnt
+
 # Default source directory in $HOME (change as necessary):
 DIR="Archive"
 
