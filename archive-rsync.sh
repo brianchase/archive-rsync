@@ -62,16 +62,12 @@ chk_from () {
         [ "$TSlash" = y ] && From="${From%/}" ;;
   esac
   if [ ! -d "$From" ]; then
-    if [ -x "$(command -v get-mnt.sh)" ]; then
-      read -r -p "Mount a connected device for '$From'? [y/n] " MntCD
-      if [ "$MntCD" = y ]; then
-        source get-mnt.sh
-        if [ ! -d "$From" ]; then
-          ar_error "Source '$From' not found!"
-        fi
-      fi
+    [ -x "$(command -v get-mnt.sh)" ] || ar_error "Source '$From' not found!"
+    read -r -p "Mount a connected device for '$From'? [y/n] " MntCD
+    if [ "$MntCD" = y ]; then
+      source get-mnt.sh
+      [ ! -d "$From" ] && ar_error "Source '$From' not found!"
     fi
-    ar_error "Source '$From' not found!"
   fi
 }
 
