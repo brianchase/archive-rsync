@@ -35,24 +35,17 @@ ar_sync () {
   local Free Used Sync
   Free="$(df -h "$ToDir" | awk '!/Filesystem/ {print $4}')"
   Used="$(df -h "$ToDir" | awk '!/Filesystem/ {print $3}')"
-  printf '%s\n\n' "[Free space: $Free] [Used space: $Used]"
+  printf '%s\n' "[Free space: $Free] [Used space: $Used]"
   read -r -p "Sync $From to $To? [y/n] " Sync
-  if [ "$Sync" = y ]; then
-    rsync -amu --delete --progress "$From" "$To"
-  fi
-  if [ "${MntArr2[0]}" ]; then
-    printf '\n'
-    chk_umount_args "${DevArr2[0]}"
-  fi
+  [ "$Sync" = y ] && rsync -amu --delete --progress "$From" "$To"
+  [ "${MntArr2[0]}" ] && chk_umount_args "${DevArr2[0]}"
 }
 
 chk_space () {
   local DIRTotal FSTotal
   DIRTotal="$(du -ms "$From" | awk '{print $1}')"
   FSTotal="$(df -m "$ToDir" | awk '!/Filesystem/ {print $2}')"
-  if [ "$FSTotal" -lt "$DIRTotal" ]; then
-    ar_error "Insufficient space on $To for $From!"
-  fi
+  [ "$FSTotal" -lt "$DIRTotal" ] && ar_error "Not enough space on $To for $From!"
 }
 
 chk_from () {
@@ -112,21 +105,12 @@ chk_get_mnt () {
 }
 
 ar_defaults () {
-  if [ "$Reverse" ]; then
-    To="$HOME"
-    chk_to
-    if chk_get_mnt "source"; then
-      From="${MntArr2[0]}/$DIR"
-      chk_from
-    fi
-  else
-    [ -z "$From" ] && From="$HOME/$DIR"
-    chk_from
-    if [ -z "$To" ] && chk_get_mnt "destination"; then
-      To="${MntArr2[0]}"
-    fi
-    chk_to
-  fi
+  [ "$Reverse" ] && chk_get_mnt "source" && From="${MntArr2[0]}/$DIR"
+  [ -z "$From" ] && From="$HOME/$DIR"
+  chk_from
+  [ "$Reverse" ] && To="$HOME"
+  [ -z "$To" ] && chk_get_mnt "destination" && To="${MntArr2[0]}"
+  chk_to
 }
 
 ar_error () {
