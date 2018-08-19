@@ -147,10 +147,8 @@ ar_opts () {
     ar_error "Invalid flags: -r and -s conflict!"
   elif [ "$Reverse" ] && [ "$To" ]; then
     ar_error "Invalid flags: -r and -d conflict!"
-  elif [ "$From" ] && [ "$To" ]; then
-    if [ "$From" = "$To" ]; then
-      ar_error "Source and destination paths are the same!"
-    fi
+  elif [ "$From" ] && [ "$From" = "$To" ]; then
+    ar_error "Source and destination paths are the same!"
   fi
 }
 
