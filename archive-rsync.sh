@@ -111,11 +111,8 @@ chk_to () {
 }
 
 chk_get_mnt () {
-  if [ -x "$(command -v get-mnt.sh)" ]; then
-    source get-mnt.sh
-  else
-    ar_error "Setting default $1 requires get-mnt.sh!"
-  fi
+  [ -x "$(command -v get-mnt.sh)" ] || ar_error "Setting $1 requires get-mnt.sh!"
+  source get-mnt.sh
 }
 
 ar_defaults () {
