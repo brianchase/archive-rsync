@@ -50,18 +50,16 @@ chk_space () {
 
 chk_from () {
   local TSlash MntCD
+  if [ ! -d "$From" ]; then
+    [ -x "$(command -v get-mnt.sh)" ] || ar_error "Source '$From' not found!"
+    read -r -p "Is '$From' on a connected device? [y/n] " MntCD
+    [ "$MntCD" = y ] && source get-mnt.sh
+    [ ! -d "$From" ] && ar_error "Source '$From' not found!"
+  fi
   case $From in
     */) read -r -p "Drop trailing slash from '$From'? [y/n] " TSlash
         [ "$TSlash" = y ] && From="${From%/}" ;;
   esac
-  if [ ! -d "$From" ]; then
-    [ -x "$(command -v get-mnt.sh)" ] || ar_error "Source '$From' not found!"
-    read -r -p "Mount a connected device for '$From'? [y/n] " MntCD
-    if [ "$MntCD" = y ]; then
-      source get-mnt.sh
-      [ ! -d "$From" ] && ar_error "Source '$From' not found!"
-    fi
-  fi
 }
 
 chk_to () {
