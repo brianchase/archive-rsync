@@ -94,22 +94,20 @@ chk_to () {
     ar_error "'$To' not found!"
   elif [ ! -w "$To" ]; then
     ar_error "Destination '$To' not writable!"
-  else
-    ToDir="$To"
   fi
+  ToDir="$To"
 }
 
 chk_get_mnt () {
-  [ -x "$(command -v get-mnt.sh)" ] || ar_error "Setting $1 requires get-mnt.sh!"
+  [ -x "$(command -v get-mnt.sh)" ] || ar_error "$1 path requires get-mnt.sh!"
   source get-mnt.sh
 }
 
 ar_defaults () {
-  [ "$Reverse" ] && chk_get_mnt "source" && From="${MntArr2[0]}/$DIR"
-  [ -z "$From" ] && From="$HOME/$DIR"
-  chk_from
+  [ "$Reverse" ] && chk_get_mnt Source && From="${MntArr2[0]}/$DIR"
+  [ "${From=$HOME/$DIR}" ] && chk_from
   [ "$Reverse" ] && To="$HOME"
-  [ -z "$To" ] && chk_get_mnt "destination" && To="${MntArr2[0]}"
+  [ -z "$To" ] && chk_get_mnt Destination && To="${MntArr2[0]}"
   chk_to
 }
 
