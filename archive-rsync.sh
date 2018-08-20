@@ -6,26 +6,29 @@
 # Default source directory in $HOME (change as necessary):
 DIR="Archive"
 
+ar_error () {
+  printf '%s\n' "$@" >&2
+  [ "${MntArr2[0]}" ] && chk_umount_args "${DevArr2[0]}"
+  exit 1
+}
+
 ar_usage () {
-  printf '%s\n' "Usage: $(basename "$0"): [-r] [-s PATH] [-d PATH]" \
+  ar_error "Usage: $(basename "$0"): [-r] [-s PATH] [-d PATH]" \
     "Options:" \
     "  -r Reverse default source and destination" \
     "  -s PATH Set source to PATH" \
     "     Default: $HOME/$DIR" \
     "  -d PATH Set destination to PATH" \
-    "     Default: user selected mounted device" >&2
-  exit 1
+    "     Default: user selected mounted device"
 }
 
 while getopts :rs:d: Flag; do
   case $Flag in
     r) Reverse="true" ;;
     s) From="$OPTARG" ;;
-    :) printf '%s\n' "Invalid flag: -$OPTARG requires an argument!" >&2
-       exit 1 ;;
+    :) ar_error "Invalid flag: -$OPTARG requires an argument!" ;;
     d) To="$OPTARG" ;;
-    :) printf '%s\n' "Invalid flag: -$OPTARG requires an argument!" >&2
-       exit 1 ;;
+    :) ar_error "Invalid flag: -$OPTARG requires an argument!" ;;
     \?) ar_usage ;;
   esac
 done
@@ -107,12 +110,6 @@ ar_defaults () {
   [ "$Reverse" ] && To="$HOME"
   [ -z "$To" ] && chk_get_mnt Destination && To="${MntArr2[0]}"
   chk_to
-}
-
-ar_error () {
-  printf '%s\n' "$1" >&2
-  [ "${MntArr2[0]}" ] && chk_umount_args "${DevArr2[0]}"
-  exit 1
 }
 
 ar_opts () {
