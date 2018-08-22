@@ -94,11 +94,6 @@ with options `-amu --delete --progress`. If the script used
 [get-mnt.sh](https://github.com/brianchase/get-mnt) to mount a device,
 the script asks to unmount it.
 
-## Portability
-
-Since the script uses arrays, it's not strictly
-[POSIX](https://en.wikipedia.org/wiki/POSIX)-compliant.
-
 ## License
 
 This project is in the public domain under [The
