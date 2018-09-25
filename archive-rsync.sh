@@ -8,7 +8,7 @@ DIR="Archive"
 
 ar_error () {
   printf '%s\n' "$@" >&2
-  [ "${MntArr2[0]}" ] && chk_umount_args "${DevArr2[0]}"
+  [ "${MntArr2[0]}" ] && mnt_args "${DevArr2[0]}"
   exit 1
 }
 
@@ -41,7 +41,7 @@ ar_sync () {
   printf '%s\n' "[Free space: $Free] [Used space: $Used]"
   read -r -p "Sync $From to $To? [y/n] " Sync
   [ "$Sync" = y ] && rsync -amu --delete --progress "$From" "$To"
-  [ "${MntArr2[0]}" ] && chk_umount_args "${DevArr2[0]}"
+  [ "${MntArr2[0]}" ] && mnt_args "${DevArr2[0]}"
 }
 
 chk_space () {
