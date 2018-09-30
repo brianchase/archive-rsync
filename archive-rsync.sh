@@ -32,10 +32,10 @@ while getopts :rs:d: Flag; do
     \?) ar_usage ;;
   esac
 done
-shift $((OPTIND -1))
+shift $((OPTIND - 1))
 
 ar_sync () {
-  local Free Used Sync
+  local Free Sync Used
   Free="$(df -h "$ToDir" | awk '!/Filesystem/ {print $4}')"
   Used="$(df -h "$ToDir" | awk '!/Filesystem/ {print $3}')"
   printf '%s\n' "[Free space: $Free] [Used space: $Used]"
@@ -52,7 +52,7 @@ chk_space () {
 }
 
 chk_from () {
-  local TSlash MntCD
+  local MntCD TSlash
   if [ ! -d "$From" ]; then
     [ -x "$(command -v get-mnt.sh)" ] || ar_error "Source '$From' not found!"
     read -r -p "Is '$From' on a connected device? [y/n] " MntCD
@@ -92,7 +92,7 @@ chk_to () {
         return
       fi
     fi
-    ar_error "'$To' not found!"
+    ar_error "Destination '$To' not found!"
   elif [ ! -w "$To" ]; then
     ar_error "Destination '$To' not writable!"
   fi
