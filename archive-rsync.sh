@@ -106,7 +106,8 @@ chk_get_mnt () {
 
 ar_defaults () {
   [ "$Reverse" ] && chk_get_mnt Source && From="${MntArr2[0]}/$DIR"
-  [ "${From=$HOME/$DIR}" ] && chk_from
+  From="${From:-$HOME/$DIR}"
+  chk_from
   [ "$Reverse" ] && To="$HOME"
   [ -z "$To" ] && chk_get_mnt Destination && To="${MntArr2[0]}"
   chk_to
