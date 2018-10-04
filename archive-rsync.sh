@@ -35,7 +35,10 @@ done
 shift $((OPTIND - 1))
 
 ar_sync () {
-  local Free Sync Used
+  local DIRTotal Free FSTotal Sync Used
+  DIRTotal="$(du -ms "$From" | awk '{print $1}')"
+  FSTotal="$(df -m "$ToDir" | awk '!/Filesystem/ {print $2}')"
+  [ "$FSTotal" -lt "$DIRTotal" ] && ar_error "Not enough space on $To for $From!"
   Free="$(df -h "$ToDir" | awk '!/Filesystem/ {print $4}')"
   Used="$(df -h "$ToDir" | awk '!/Filesystem/ {print $3}')"
   printf '%s\n' "[Free space: $Free] [Used space: $Used]"
@@ -44,36 +47,17 @@ ar_sync () {
   [ "${MntArr2[0]}" ] && mnt_args "${DevArr2[0]}"
 }
 
-chk_space () {
-  local DIRTotal FSTotal
-  DIRTotal="$(du -ms "$From" | awk '{print $1}')"
-  FSTotal="$(df -m "$ToDir" | awk '!/Filesystem/ {print $2}')"
-  [ "$FSTotal" -lt "$DIRTotal" ] && ar_error "Not enough space on $To for $From!"
-}
-
-chk_from () {
-  local MntCD TSlash
-  if [ ! -d "$From" ]; then
-    [ -x "$(command -v get-mnt.sh)" ] || ar_error "Source '$From' not found!"
-    read -r -p "Is '$From' on a connected device? [y/n] " MntCD
-    [ "$MntCD" = y ] && source get-mnt.sh
-    [ ! -d "$From" ] && ar_error "Source '$From' not found!"
-  fi
-  case $From in
-    */) read -r -p "Drop trailing slash from '$From'? [y/n] " TSlash
-        [ "$TSlash" = y ] && From="${From%/}" ;;
-  esac
-}
-
-chk_to () {
+ar_to () {
 
 # Since rsync can create the directory at the end of the destination
 # path, you need to check more than just whether $To is a directory.
 
+  local MntCD
+  [ -z "$To" ] && chk_get_mnt Destination
+  To="${To:-${MntArr2[0]}}"
   if [ ! -d "$To" ]; then
     if ToDir="$(dirname "$To" 2>/dev/null)"; then
       if [ -x "$(command -v get-mnt.sh)" ]; then
-        local MntCD
         read -r -p "Mount a connected device for '$To'? [y/n] " MntCD
         if [ "$MntCD" = y ]; then
           source get-mnt.sh
@@ -99,18 +83,24 @@ chk_to () {
   ToDir="$To"
 }
 
+ar_from () {
+  local MntCD TSlash
+  From="${From:-$HOME/$DIR}"
+  if [ ! -d "$From" ]; then
+    [ -x "$(command -v get-mnt.sh)" ] || ar_error "Source '$From' not found!"
+    read -r -p "Is '$From' on a connected device? [y/n] " MntCD
+    [ "$MntCD" = y ] && source get-mnt.sh
+    [ ! -d "$From" ] && ar_error "Source '$From' not found!"
+  fi
+  case $From in
+    */) read -r -p "Drop trailing slash from '$From'? [y/n] " TSlash
+      [ "$TSlash" = y ] && From="${From%/}" ;;
+  esac
+}
+
 chk_get_mnt () {
   [ -x "$(command -v get-mnt.sh)" ] || ar_error "$1 path requires get-mnt.sh!"
   source get-mnt.sh
-}
-
-ar_defaults () {
-  [ "$Reverse" ] && chk_get_mnt Source && From="${MntArr2[0]}/$DIR"
-  From="${From:-$HOME/$DIR}"
-  chk_from
-  [ "$Reverse" ] && To="$HOME"
-  [ -z "$To" ] && chk_get_mnt Destination && To="${MntArr2[0]}"
-  chk_to
 }
 
 ar_opts () {
@@ -120,17 +110,20 @@ ar_opts () {
     ar_error "Invalid flags: -r and -d conflict!"
   elif [ "$From" ] && [ "$From" = "$To" ]; then
     ar_error "Source and destination paths are the same!"
+  elif [ "$Reverse" ]; then
+    chk_get_mnt Source
+    To="$HOME"
   fi
 }
 
 ar_main () {
   ar_opts
-  ar_defaults
-  chk_space
+  ar_from
+  ar_to
   ar_sync
 }
 
 case $1 in
-  ''|-r|-s|-d) ar_main ;;
+  ''|-d|-r|-s) ar_main ;;
   *) ar_usage ;;
 esac
