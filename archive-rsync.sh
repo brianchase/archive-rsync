@@ -15,7 +15,6 @@ ar_error () {
 ar_usage () {
   ar_error "Usage: $(basename "$0"): [-r] [-s PATH] [-d PATH]" \
     "Options:" \
-    "  -r Reverse default source and destination" \
     "  -s PATH Set source to PATH" \
     "     Default: $HOME/$DIR" \
     "  -d PATH Set destination to PATH" \
@@ -24,7 +23,6 @@ ar_usage () {
 
 while getopts :rs:d: Flag; do
   case $Flag in
-    r) Reverse="true" ;;
     s) From="$OPTARG" ;;
     :) ar_error "Invalid flag: -$OPTARG requires an argument!" ;;
     d) To="$OPTARG" ;;
@@ -103,27 +101,16 @@ chk_get_mnt () {
   source get-mnt.sh
 }
 
-ar_opts () {
-  if [ "$Reverse" ] && [ "$From" ]; then
-    ar_error "Invalid flags: -r and -s conflict!"
-  elif [ "$Reverse" ] && [ "$To" ]; then
-    ar_error "Invalid flags: -r and -d conflict!"
-  elif [ "$From" ] && [ "$From" = "$To" ]; then
-    ar_error "Source and destination paths are the same!"
-  elif [ "$Reverse" ]; then
-    chk_get_mnt Source
-    To="$HOME"
-  fi
-}
-
 ar_main () {
-  ar_opts
+  if [ "$From" ] && [ "$From" = "$To" ]; then
+    ar_error "Source and destination paths are the same!"
+  fi
   ar_from
   ar_to
   ar_sync
 }
 
 case $1 in
-  ''|-d|-r|-s) ar_main ;;
+  ''|-d|-s) ar_main ;;
   *) ar_usage ;;
 esac

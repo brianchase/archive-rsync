@@ -13,7 +13,7 @@ You can run the script without options to use its default settings or
 run it with options to override them. The options are as follows:
 
 ```
-$ archive-rsync.sh [-r] [-s PATH] [-d PATH]
+$ archive-rsync.sh [-s PATH] [-d PATH]
 ```
 
 By default, the script syncs files from `$HOME/Archive` to a mounted
@@ -75,15 +75,6 @@ your path and executable and ask whether to mount a connected device.
 In short, for both the source and destination, you may specify
 directories on connected devices and mount them before running
 [rsync](https://rsync.samba.org "rsync").
-
-You may, in effect, reverse the default source and destination with
-`-r`:
-
-```
-$ archive-rsync.sh -r
-```
-
-This syncs from `Archive` on a mounted device to `$HOME`.
 
 Among other precautions, the script exits with an error if the
 destination has insufficient space for the source. Regardless, beware
